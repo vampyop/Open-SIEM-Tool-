@@ -1,125 +1,232 @@
-# Open-SIEM-Tool-
-# ▶️ How to Run Open-SIEM (LIVE Packet Capture)
+# 🛡️ Open-SIEM — Network Security Monitor
 
-Scapy captures REAL packets from your network card.
-It needs admin/root permission — this is normal for any network tool (Wireshark does the same).
+> A college-level Security Information & Event Management (SIEM) system built with Python FastAPI + React. Monitors network traffic, detects threats in real-time, and visualizes data through a professional dashboard.
+
+[![CI](https://github.com/YOUR_USERNAME/open-siem/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/open-siem/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.11-blue)](https://python.org)
+[![React](https://img.shields.io/badge/React-18-61dafb)](https://reactjs.org)
 
 ---
 
-## ✅ Linux / Kali Linux (Recommended)
+## 📸 Features at a Glance
 
-### Step 1 — Install dependencies
+| Feature | Description |
+|---|---|
+| 🔴 Live Dashboard | Real-time charts updating every second |
+| 📦 Packet Monitor | View live network packets with source/dest IPs |
+| 🚨 Alert Engine | Detects port scans, DDoS bursts, brute force |
+| 📊 Charts | Area, Line, Bar, Pie charts using Recharts |
+| 🔐 JWT Auth | Login with Admin / Analyst roles |
+| ⬇️ CSV Export | Download all alerts as CSV |
+| 🐳 Docker | One-command setup with Docker Compose |
+| 🤖 CI/CD | GitHub Actions runs tests automatically |
+
+---
+
+## 🚀 Quick Start (Recommended)
+
+### Option 1 — Run Without Docker (Easiest for demo)
+
+**Step 1: Clone the project**
 ```bash
-cd open-siem/backend
+git clone https://github.com/YOUR_USERNAME/open-siem.git
+cd open-siem
+```
+
+**Step 2: Start the Backend**
+```bash
+cd backend
 pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Step 2 — Start backend WITH SUDO (required for raw socket access)
+**Step 3: Start the Frontend** (open a NEW terminal)
 ```bash
-sudo uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-You'll see:
-```
-[Capture] Starting REAL packet capture on interface: default (all)
-✅ Open-SIEM started — LIVE packet capture running.
-[Capture] 42 pkts/s | 0 alerts | total_pkts=42
-[Capture] 67 pkts/s | 1 alerts | total_pkts=109
-```
-
-### Step 3 — Start frontend (new terminal, no sudo needed)
-```bash
-cd open-siem/frontend
+cd frontend
 npm install
 npm start
 ```
 
-### Step 4 — Open browser
-- Dashboard → http://localhost:3000
-- API Docs  → http://localhost:8000/docs
+**Step 4: Open your browser**
+- 🖥️ Dashboard → http://localhost:3000
+- 📖 API Docs → http://localhost:8000/docs
+
+**Login credentials:**
+| Username | Password | Role |
+|---|---|---|
+| admin | admin123 | Admin |
+| analyst | analyst123 | Analyst |
 
 ---
 
-## ✅ Windows
-
-### Step 1 — Install Npcap (REQUIRED — Scapy needs this driver)
-Download from: https://npcap.com/#download
-Install it with default options.
-
-### Step 2 — Install Python packages
-```cmd
-cd open-siem\backend
-pip install -r requirements.txt
-```
-
-### Step 3 — Run as Administrator
-Right-click your terminal → "Run as Administrator"
-```cmd
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-### Step 4 — Start frontend
-```cmd
-cd open-siem\frontend
-npm install
-npm start
-```
-
----
-
-## 🔌 Select Network Interface
-
-In the dashboard Navbar, there is an **Interface dropdown**.
-Click it to see all interfaces on your machine (eth0, wlan0, lo, etc.) and switch capture.
-
-Or via API:
-```bash
-# List interfaces
-curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8000/api/dashboard/interfaces
-
-# Switch to wlan0
-curl -X POST -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8000/api/dashboard/interfaces/wlan0
-```
-
----
-
-## 🐳 Docker (Linux only — needs --network=host for raw sockets)
+### Option 2 — Docker (One command)
 
 ```bash
+git clone https://github.com/YOUR_USERNAME/open-siem.git
+cd open-siem
 docker-compose up --build
 ```
 
-For real packet capture in Docker on Linux:
-```bash
-docker run --network=host --cap-add=NET_ADMIN --cap-add=NET_RAW siem-backend
+Then open: http://localhost:3000
+
+---
+
+## 📁 Project Structure
+
+```
+open-siem/
+├── backend/
+│   ├── app/
+│   │   ├── api/           ← REST endpoints (auth, dashboard)
+│   │   ├── core/          ← Database + JWT security
+│   │   ├── models/        ← SQLAlchemy database models
+│   │   ├── services/      ← Packet simulator + threat detection
+│   │   ├── websocket/     ← WebSocket broadcast manager
+│   │   └── main.py        ← FastAPI app entry point
+│   ├── tests/             ← Pytest tests
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── pages/         ← Dashboard, Alerts, Packets, Login
+│   │   ├── components/    ← Navbar
+│   │   └── services/      ← Axios API client
+│   ├── public/
+│   ├── Dockerfile
+│   └── package.json
+│
+├── docker-compose.yml
+├── nginx.conf
+├── .github/workflows/ci.yml
+├── architecture.md
+└── README.md
 ```
 
 ---
 
-## 🧪 Run Tests
+## 🔧 API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/auth/login` | No | Login, returns JWT token |
+| POST | `/api/auth/register` | No | Register new user |
+| GET | `/api/auth/me` | Yes | Get current user info |
+| GET | `/api/dashboard/stats` | Yes | Full dashboard statistics |
+| GET | `/api/dashboard/packets?limit=50` | Yes | Recent captured packets |
+| GET | `/api/dashboard/alerts?severity=HIGH` | Yes | Filter alerts by severity |
+| GET | `/api/dashboard/alerts/export` | Yes | Download alerts as CSV |
+| WS | `/ws/live` | No | WebSocket live data stream |
+
+---
+
+## 🌐 WebSocket Events
+
+Connect to `ws://localhost:8000/ws/live`
+
+**Event received every 1 second:**
+```json
+{
+  "type": "live_update",
+  "packets_per_sec": 42,
+  "alerts_per_sec": 1,
+  "cpu": 23.5,
+  "ram": 61.2,
+  "severity_counts": { "LOW": 5, "MEDIUM": 3, "HIGH": 2, "CRITICAL": 1 },
+  "top_ips": [{ "ip": "45.33.32.156", "count": 120 }],
+  "protocol_stats": [{ "name": "TCP", "value": 45.2 }],
+  "traffic_timeline": [{ "time": "14:22:01", "packets": 42, "alerts": 1 }],
+  "recent_packets": [...],
+  "new_alerts": [...]
+}
+```
+
+---
+
+## 🛡️ Threat Detection Rules
+
+| Rule | Trigger | Severity |
+|---|---|---|
+| DDoS Burst | >40 packets/sec from one IP | CRITICAL |
+| Traffic Spike | >20 packets/sec from one IP | HIGH |
+| Port Scan | >15 unique ports probed | HIGH |
+| Brute Force SSH/FTP | >5 connection attempts | CRITICAL |
+
+---
+
+## 🧪 Running Tests
 
 ```bash
 cd backend
 pytest tests/ -v
 ```
 
+Expected output:
+```
+PASSED tests/test_api.py::test_root
+PASSED tests/test_api.py::test_register_and_login
+PASSED tests/test_api.py::test_dashboard_requires_auth
+PASSED tests/test_api.py::test_dashboard_with_auth
+```
+
 ---
 
-## 🔑 Login Credentials
+## 🔮 Future Improvements
 
-| Username | Password | Role  |
-|----------|----------|-------|
-| admin    | admin123 | Admin |
-| analyst  | analyst123 | Analyst |
+- [ ] Real Scapy packet capture (requires Linux + root)
+- [ ] Machine Learning anomaly detection (Isolation Forest / Autoencoder)
+- [ ] Email/Telegram alert notifications
+- [ ] PostgreSQL for production persistence
+- [ ] PDF report generation
+- [ ] Geolocation map for attacker IPs
+- [ ] Multi-interface monitoring
+- [ ] MITRE ATT&CK framework mapping
 
 ---
 
-## ❓ Common Errors
+## 🛠️ Troubleshooting
 
-| Error | Fix |
-|---|---|
-| `Operation not permitted` | Run with `sudo` on Linux |
-| `No module named scapy` | `pip install scapy` |
-| `Npcap not found` | Install Npcap on Windows |
-| `WebSocket Reconnecting` | Make sure backend is running |
-| `CORS error` | Backend must be on port 8000 |
+**Backend not starting?**
+```bash
+# Check Python version (needs 3.10+)
+python --version
+
+# Install missing packages
+pip install -r requirements.txt
+```
+
+**Frontend not connecting to backend?**
+```bash
+# Create frontend/.env file:
+echo "REACT_APP_API_URL=http://localhost:8000" > frontend/.env
+echo "REACT_APP_WS_URL=ws://localhost:8000/ws/live" >> frontend/.env
+```
+
+**WebSocket shows "Reconnecting"?**
+- Make sure backend is running on port 8000
+- Check browser console for errors (F12)
+
+**npm install fails?**
+```bash
+# Clear cache and retry
+npm cache clean --force
+npm install
+```
+
+---
+
+## 📜 License
+
+MIT License — Free to use for academic projects.
+
+---
+
+## 👨‍💻 Team / Author
+
+Built as a college major project demonstrating:
+- Full-stack web development (Python + React)
+- Network security concepts (SIEM, IDS/IPS)
+- Real-time systems (WebSockets)
+- DevOps (Docker, CI/CD)
+- Software engineering best practices

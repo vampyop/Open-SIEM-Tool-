@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    container_name: siem-backend
+    network_mode: host
+    environment:
+      - DATABASE_URL=sqlite:///./siem.db
+      - SECRET_KEY=opensi...
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: siem-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  
